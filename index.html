@@ -5,11 +5,10 @@
   <title>Biografia De Um Desconhecido - Mapa</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   
+  <!-- Carrega apenas uma vez o Leaflet, sem integrity nem crossorigin -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  />
-  
   <style>
     #map {
       width: 100%;
@@ -18,18 +17,13 @@
     body, html {
       margin: 0;
       padding: 0;
+      font-family: sans-serif;
     }
   </style>
 </head>
 <body>
-  <h1>Biografia De Um Desconhecido - Mapa</h1>
+  <h1 style="text-align: center;">Biografia De Um Desconhecido - Mapa</h1>
   <div id="map"></div>
-
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-o9N1jzZrqj3y0bW5vQ8uxEFv1VGVkFuNFv6TfF5rtTI="
-    crossorigin=""
-  ></script>
 
   <script>
     const map = L.map('map').setView([38.7169, -9.1399], 12);
@@ -52,9 +46,7 @@
           if (!moradaTexto) continue;
 
           try {
-            const res = await fetch(
-              `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(moradaTexto)}`
-            );
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(moradaTexto)}`);
             const data = await res.json();
 
             if (data && data.length > 0) {
@@ -75,18 +67,21 @@
               L.marker([lat, lon])
                 .addTo(map)
                 .bindPopup(popupHtml);
+            } else {
+              console.warn("Morada não encontrada:", moradaTexto);
             }
           } catch (e) {
             console.error('Erro ao geocodificar:', e);
           }
 
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise(resolve => setTimeout(resolve, 100)); // espera entre pedidos
         }
       }
 
       geocodeAndPlot();
     }
 
+    // JSONP: carrega o script com dados do Google Apps Script
     const script = document.createElement('script');
     script.src = apiUrl + '?callback=jsonpCallback';
     document.body.appendChild(script);
