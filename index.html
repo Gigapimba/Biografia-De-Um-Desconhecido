@@ -55,7 +55,7 @@
 
               const dataHora = item['carimbo de data/hora'] || 'Sem data';
               const nome = item['nome'] || 'Sem nome';
-              const comentario = item['comentário'] || 'Sem comentário';
+              const comentario = item['comentário'] || item['comentario'] || 'Sem comentário';
 
               const popupHtml = `
                 <b>Data:</b> ${dataHora}<br/>
