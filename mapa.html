@@ -2,32 +2,45 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8" />
-  <title>Mapa com Moradas do Google Forms</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <title>Biografia De Um Desconhecido - Mapa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-sA+Wd/mKNk3Q2NnFOhrTVF39Nn6u20nTrPtdAc+0mJ0="
+    crossorigin=""
+  />
+  
   <style>
     #map {
-      height: 500px;
       width: 100%;
-      margin-top: 10px;
+      height: 90vh;
+    }
+    body, html {
+      margin: 0;
+      padding: 0;
     }
   </style>
 </head>
 <body>
-
-  <h2>Mapa com Moradas do Google Forms</h2>
+  <h1>Biografia De Um Desconhecido - Mapa</h1>
   <div id="map"></div>
 
-  <!-- Carrega a biblioteca Leaflet ANTES do teu script -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-o9N1jzZrqj3y0bW5vQ8uxEFv1VGVkFuNFv6TfF5rtTI="
+    crossorigin=""
+  ></script>
 
-  <!-- Agora o teu script que usa a biblioteca Leaflet -->
   <script>
     const map = L.map('map').setView([38.7169, -9.1399], 12);
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
+      attribution: '&copy; OpenStreetMap contributors',
     }).addTo(map);
 
-    const apiUrl = "https://script.google.com/macros/s/AKfycbwP1nCFsnsvNiFjSb65GzzizYmtpVS0oBw7GDGY_y8Md6fZej1hGGJ8MdSRQKa2gRY7lw/exec";
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbwP1nCFsnsvNiFjSb65GzzizYmtpVS0oBw7GDGY_y8Md6fZej1hGGJ8MdSRQKa2gRY7lw/exec';
 
     function jsonpCallback(dados) {
       if (!dados.length) {
@@ -37,36 +50,36 @@
 
       async function geocodeAndPlot() {
         for (const item of dados) {
-          const morada = item["morada"]?.trim();
-          if (!morada) continue;
+          const moradaTexto = item['morada']?.trim();
+          if (!moradaTexto) continue;
 
           try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(morada)}`);
+            const res = await fetch(
+              `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(moradaTexto)}`
+            );
             const data = await res.json();
 
             if (data && data.length > 0) {
               const lat = parseFloat(data[0].lat);
               const lon = parseFloat(data[0].lon);
 
-              const dataHora = item["carimbo de data/hora"] || "Sem data";
-			 const nome = item["nome"] || "Sem nome";
-			 const morada = item["morada"] || "Sem morada";
-			 const comentario = item["comentario"] || "Sem comentário";
-
+              const dataHora = item['carimbo de data/hora'] || 'Sem data';
+              const nome = item['nome'] || 'Sem nome';
+              const comentario = item['comentário'] || 'Sem comentário';
 
               const popupHtml = `
                 <b>Data:</b> ${dataHora}<br/>
                 <b>Nome:</b> ${nome}<br/>
-                <b>Morada:</b> ${morada}<br/>
+                <b>Morada:</b> ${moradaTexto}<br/>
                 <b>Comentário:</b> ${comentario}
               `;
 
-              L.marker([lat, lon]).addTo(map).bindPopup(popupHtml);
-            } else {
-              console.warn("Morada não encontrada:", morada);
+              L.marker([lat, lon])
+                .addTo(map)
+                .bindPopup(popupHtml);
             }
           } catch (e) {
-            console.error("Erro ao geocodificar:", e);
+            console.error('Erro ao geocodificar:', e);
           }
 
           await new Promise(resolve => setTimeout(resolve, 100));
@@ -77,9 +90,9 @@
     }
 
     const script = document.createElement('script');
-    script.src = apiUrl + "?callback=jsonpCallback";
+    script.src = apiUrl + '?callback=jsonpCallback';
     document.body.appendChild(script);
   </script>
-
 </body>
 </html>
+
