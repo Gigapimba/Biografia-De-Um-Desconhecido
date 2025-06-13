@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="pt">
 <head>
   <meta charset="UTF-8" />
@@ -32,6 +32,43 @@
       attribution: '&copy; OpenStreetMap contributors',
     }).addTo(map);
 
+    // Ícones coloridos personalizados
+    const icons = {
+      'História 1': L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      }),
+      'História 2': L.icon({
+        // Ícone rosa não oficial, mas usei este disponível público
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      }),
+      'História 3': L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      }),
+      'História 4': L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      }),
+    };
+
     const apiUrl = 'https://script.google.com/macros/s/AKfycbwP1nCFsnsvNiFjSb65GzzizYmtpVS0oBw7GDGY_y8Md6fZej1hGGJ8MdSRQKa2gRY7lw/exec';
 
     function jsonpCallback(dados) {
@@ -57,14 +94,19 @@
               const nome = item['nome'] || 'Sem nome';
               const comentario = item['comentário'] || item['comentario'] || 'Sem comentário';
 
+              const historiaResposta = item['Historia'] || item['historia'] || 'História 1'; // Ajusta conforme nome exato
+
               const popupHtml = `
                 <b>Data:</b> ${dataHora}<br/>
                 <b>Nome:</b> ${nome}<br/>
                 <b>Morada:</b> ${moradaTexto}<br/>
-                <b>Comentário:</b> ${comentario}
+                <b>Comentário:</b> ${comentario}<br/>
+                <b>História:</b> ${historiaResposta}
               `;
 
-              L.marker([lat, lon])
+              const markerIcon = icons[historiaResposta] || icons['História 1'];
+
+              L.marker([lat, lon], { icon: markerIcon })
                 .addTo(map)
                 .bindPopup(popupHtml);
             } else {
@@ -88,4 +130,5 @@
   </script>
 </body>
 </html>
+
 
