@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mapa com Moradas do Google Forms</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 500px;
+      width: 100%;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Mapa com Moradas do Google Forms</h2>
+  <div id="map"></div>
+
+  <!-- Carrega a biblioteca Leaflet ANTES do teu script -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Agora o teu script que usa a biblioteca Leaflet -->
+  <script>
+    const map = L.map('map').setView([38.7169, -9.1399], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const apiUrl = "https://script.google.com/macros/s/AKfycbwP1nCFsnsvNiFjSb65GzzizYmtpVS0oBw7GDGY_y8Md6fZej1hGGJ8MdSRQKa2gRY7lw/exec";
+
+    function jsonpCallback(dados) {
+      if (!dados.length) {
+        alert('Nenhuma morada encontrada.');
+        return;
+      }
+
+      async function geocodeAndPlot() {
+        for (const item of dados) {
+          const morada = item["morada"]?.trim();
+          if (!morada) continue;
+
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(morada)}`);
+            const data = await res.json();
+
+            if (data && data.length > 0) {
+              const lat = parseFloat(data[0].lat);
+              const lon = parseFloat(data[0].lon);
+
+              const dataHora = item["carimbo de data/hora"] || "Sem data";
+			 const nome = item["nome"] || "Sem nome";
+			 const morada = item["morada"] || "Sem morada";
+			 const comentario = item["comentario"] || "Sem comentário";
+
+
+              const popupHtml = `
+                <b>Data:</b> ${dataHora}<br/>
+                <b>Nome:</b> ${nome}<br/>
+                <b>Morada:</b> ${morada}<br/>
+                <b>Comentário:</b> ${comentario}
+              `;
+
+              L.marker([lat, lon]).addTo(map).bindPopup(popupHtml);
+            } else {
+              console.warn("Morada não encontrada:", morada);
+            }
+          } catch (e) {
+            console.error("Erro ao geocodificar:", e);
+          }
+
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+
+      geocodeAndPlot();
+    }
+
+    const script = document.createElement('script');
+    script.src = apiUrl + "?callback=jsonpCallback";
+    document.body.appendChild(script);
+  </script>
+
+</body>
+</html>
