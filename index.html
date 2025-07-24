@@ -1,6 +1,7 @@
 <!DOCTYPE html> 
 <html lang="pt">
 <head>
+  <link rel="icon" href="data:,">
   <meta charset="UTF-8" />
   <title>Biografia De Um Desconhecido - Mapa</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -61,7 +62,7 @@
       async function geocodeAndPlot() {
         for (const item of dados) {
           const moradaTexto = item['morada']?.trim();
-          if (!moradaTexto) continue {
+          if (!moradaTexto) continue;
 
           try {
             const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(moradaTexto)}`);
