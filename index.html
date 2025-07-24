@@ -143,8 +143,16 @@
 
           const dataHora = item['carimbo de data/hora'] || 'Sem data';
           const nome = item['nome'] || 'Sem nome';
-          const comentario = item['comentário'] || item['comentario'] || 'Sem comentário';
-          const carta = item['Carta'] || 'Carta I - Milita';
+          const comentarioKey = Object.keys(item).find(key =>
+          key.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes('coment')
+          );
+          const comentario = item[comentarioKey] || 'Sem comentário';
+
+          const cartaKey = Object.keys(item).find(key =>
+          key.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes('carta')
+          );
+          const carta = item[cartaKey]?.trim() || 'Carta I - Milita';
+
           const popupHtml = `
             <b>Data:</b> ${dataHora}<br/>
             <b>Nome:</b> ${nome}<br/>
