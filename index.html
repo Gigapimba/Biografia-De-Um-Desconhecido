@@ -61,7 +61,7 @@
       async function geocodeAndPlot() {
         for (const item of dados) {
           const moradaTexto = item['morada']?.trim();
-          if (!moradaTexto) continue;
+          if (!moradaTexto) continue {
 
           try {
             const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(moradaTexto)}`);
