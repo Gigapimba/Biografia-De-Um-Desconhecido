@@ -51,22 +51,6 @@
         popupAnchor: [1, -34],
         shadowSize: [41, 41]
       }),
-      'História 3': L.icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-      }),
-      'História 4': L.icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-      }),
     };
 
     const apiUrl = 'https://script.google.com/macros/s/AKfycbzsobFKPZ4kJ6M-ee8eFiN3OsGsLu9Maf7toLOeEBE7J2fGVf-uw3qQ-PjI3YSaJZRf/exec';
@@ -92,9 +76,9 @@
 
               const dataHora = item['carimbo de data/hora'] || 'Sem data';
               const nome = item['nome'] || 'Sem nome';
-              const comentario = item['comentário'] || item['comentario'] || 'Sem comentário';
+              const comentario = item['comentário'] || item['comentario'];
 
-              const respostaCarta = item['carta'] || item['Carta'] || 'Carta I - Milita'; // Ajusta conforme nome exato
+              const respostaCarta = item['Carta']; // Ajusta conforme nome exato
 
               const popupHtml = `
                 <b>Data:</b> ${dataHora}<br/>
