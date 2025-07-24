@@ -99,6 +99,17 @@
           } catch (e) {
             console.error('Erro ao geocodificar:', e);
           }
+               const markerIcon = icons[respostaCarta] || icons['Carta II - Nizette'];
+
+              L.marker([lat, lon], { icon: markerIcon })
+                .addTo(map)
+                .bindPopup(popupHtml);
+            } else {
+              console.warn("Morada não encontrada:", moradaTexto);
+            }
+          } catch (e) {
+            console.error('Erro ao geocodificar:', e);
+          }
 
           await new Promise(resolve => setTimeout(resolve, 100)); // espera entre pedidos
         }
