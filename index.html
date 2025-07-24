@@ -5,7 +5,6 @@
   <title>Biografia De Um Desconhecido - Mapa</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   
-  <!-- Carrega apenas uma vez o Leaflet, sem integrity nem crossorigin -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -32,7 +31,6 @@
       attribution: '&copy; OpenStreetMap contributors',
     }).addTo(map);
 
-    // Ícones coloridos personalizados
     const icons = {
       'Carta I - Milita': L.icon({
         iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
@@ -43,7 +41,6 @@
         shadowSize: [41, 41]
       }),
       'Carta II - Nizette': L.icon({
-        // Ícone rosa não oficial, mas usei este disponível público
         iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png',
         shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
         iconSize: [25, 41],
@@ -76,9 +73,8 @@
 
               const dataHora = item['carimbo de data/hora'] || 'Sem data';
               const nome = item['nome'] || 'Sem nome';
-              const comentario = item['comentário'] || item['comentario'];
-
-              const respostaCarta = item['Carta']; // Ajusta conforme nome exato
+              const comentario = item['comentário'] || item['comentario'] || 'Sem comentário';
+              const respostaCarta = item['Carta'] || 'Carta I - Milita';
 
               const popupHtml = `
                 <b>Data:</b> ${dataHora}<br/>
@@ -99,31 +95,20 @@
           } catch (e) {
             console.error('Erro ao geocodificar:', e);
           }
-               const markerIcon = icons[respostaCarta] || icons['Carta II - Nizette'];
 
-              L.marker([lat, lon], { icon: markerIcon })
-                .addTo(map)
-                .bindPopup(popupHtml);
-            } else {
-              console.warn("Morada não encontrada:", moradaTexto);
-            }
-          } catch (e) {
-            console.error('Erro ao geocodificar:', e);
-          }
-
-          await new Promise(resolve => setTimeout(resolve, 100)); // espera entre pedidos
+          await new Promise(resolve => setTimeout(resolve, 100)); // Delay entre requisições
         }
       }
 
       geocodeAndPlot();
     }
 
-    // JSONP: carrega o script com dados do Google Apps Script
     const script = document.createElement('script');
     script.src = apiUrl + '?callback=jsonpCallback';
     document.body.appendChild(script);
   </script>
 </body>
 </html>
+
 
 
