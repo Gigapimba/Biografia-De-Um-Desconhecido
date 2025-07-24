@@ -22,7 +22,7 @@
   </style>
 </head>
 <body>
-  <h1 style="text-align: center;">Biografia De Um Desconhecido - Mapa</h1>
+  <h1 style="text-align: center;">Biografia De Um Desconhecido</h1>
   <div id="map"></div>
 
   <script>
@@ -69,7 +69,7 @@
       }),
     };
 
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbwntmJ7z6vERmUqiy4STF-iEJxNo6ukquPPxpMjxL2PENzVFbzNgla5hcUoCKA-SVCz/exec';
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbzsobFKPZ4kJ6M-ee8eFiN3OsGsLu9Maf7toLOeEBE7J2fGVf-uw3qQ-PjI3YSaJZRf/exec';
 
     function jsonpCallback(dados) {
       if (!dados.length) {
@@ -94,17 +94,17 @@
               const nome = item['nome'] || 'Sem nome';
               const comentario = item['comentário'] || item['comentario'] || 'Sem comentário';
 
-              const historiaResposta = item['carta'] || item['Carta'] || 'Carta I - Milita'; // Ajusta conforme nome exato
+              const respostaCarta = item['carta'] || item['Carta'] || 'Carta I - Milita'; // Ajusta conforme nome exato
 
               const popupHtml = `
                 <b>Data:</b> ${dataHora}<br/>
                 <b>Nome:</b> ${nome}<br/>
                 <b>Morada:</b> ${moradaTexto}<br/>
                 <b>Comentário:</b> ${comentario}<br/>
-                <b>História:</b> ${historiaResposta}
+                <b>Carta:</b> ${respostaCarta}
               `;
 
-              const markerIcon = icons[historiaResposta] || icons['Carta I - Milita'];
+              const markerIcon = icons[respostaCarta] || icons['Carta I - Milita'];
 
               L.marker([lat, lon], { icon: markerIcon })
                 .addTo(map)
