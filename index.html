@@ -1,29 +1,46 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="pt">
 <head>
-  <link rel="icon" href="data:,">
   <meta charset="UTF-8" />
-  <title>Biografia De Um Desconhecido - Mapa</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  
+  <meta name="description" content="Mapa interativo da iniciativa 'Biografia De Um Desconhecido'" />
+  <title>Biografia De Um Desconhecido - Mapa</title>
+
+  <link rel="icon" href="data:," />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    #map {
-      width: 100%;
-      height: 90vh;
-    }
-    body, html {
+    html, body {
       margin: 0;
       padding: 0;
       font-family: sans-serif;
     }
+    #map {
+      width: 100%;
+      height: 90vh;
+    }
+    h1 {
+      text-align: center;
+      margin: 1rem 0;
+    }
+    #loader {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(255,255,255,0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      font-size: 1.5rem;
+    }
   </style>
 </head>
 <body>
-  <h1 style="text-align: center;">Biografia De Um Desconhecido</h1>
+  <h1>Biografia De Um Desconhecido</h1>
   <div id="map"></div>
+  <div id="loader">A carregar moradas no mapa...</div>
 
   <script>
     const map = L.map('map').setView([38.7169, -9.1399], 12);
@@ -39,7 +56,7 @@
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
-        shadowSize: [41, 41]
+        shadowSize: [41, 41],
       }),
       'Carta II - Nizette': L.icon({
         iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png',
@@ -47,62 +64,115 @@
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
-        shadowSize: [41, 41]
+        shadowSize: [41, 41],
       }),
     };
 
     const apiUrl = 'https://script.google.com/macros/s/AKfycbzsobFKPZ4kJ6M-ee8eFiN3OsGsLu9Maf7toLOeEBE7J2fGVf-uw3qQ-PjI3YSaJZRf/exec';
+    const cacheKey = "geocodeCache";
+    let geocodeCache = JSON.parse(localStorage.getItem(cacheKey) || '{}');
+    let geoJsonFeatures = [];
+
+    async function geocodeAddress(address) {
+      if (geocodeCache[address]) return geocodeCache[address];
+
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+        const data = await res.json();
+        if (data && data.length > 0) {
+          const result = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+          geocodeCache[address] = result;
+          localStorage.setItem(cacheKey, JSON.stringify(geocodeCache));
+          return result;
+        }
+      } catch (e) {
+        console.error("Erro na geocodificação:", address, e);
+      }
+      return null;
+    }
+
+    function addMarkerToMap(lat, lon, popupHtml, icon) {
+      const marker = L.marker([lat, lon], { icon }).addTo(map).bindPopup(popupHtml);
+    }
+
+    function addToGeoJson(lat, lon, properties) {
+      geoJsonFeatures.push({
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [lon, lat] },
+        properties,
+      });
+    }
+
+    function downloadGeoJson() {
+      const geoJson = {
+        type: "FeatureCollection",
+        features: geoJsonFeatures,
+      };
+
+      const blob = new Blob([JSON.stringify(geoJson, null, 2)], { type: "application/json" });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'biografia_desconhecido.geojson';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function hideLoader() {
+      document.getElementById('loader').style.display = 'none';
+    }
+
+    function showLoader() {
+      document.getElementById('loader').style.display = 'flex';
+    }
 
     function jsonpCallback(dados) {
-      if (!dados.length) {
-        alert('Nenhuma morada encontrada.');
+      if (!dados || !dados.length) {
+        alert("Nenhuma morada encontrada.");
+        hideLoader();
         return;
       }
 
-      async function geocodeAndPlot() {
+      (async () => {
         for (const item of dados) {
-          const moradaTexto = item['morada']?.trim();
-          if (!moradaTexto) continue;
+          const morada = item['morada']?.trim();
+          if (!morada) continue;
 
-          try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(moradaTexto)}`);
-            const data = await res.json();
+          const coords = await geocodeAddress(morada);
+          if (!coords) continue;
 
-            if (data && data.length > 0) {
-              const lat = parseFloat(data[0].lat);
-              const lon = parseFloat(data[0].lon);
+          const dataHora = item['carimbo de data/hora'] || 'Sem data';
+          const nome = item['nome'] || 'Sem nome';
+          const comentario = item['comentário'] || item['comentario'] || 'Sem comentário';
+          const carta = item['Carta'] || 'Carta I - Milita';
+          const popupHtml = `
+            <b>Data:</b> ${dataHora}<br/>
+            <b>Nome:</b> ${nome}<br/>
+            <b>Morada:</b> ${morada}<br/>
+            <b>Comentário:</b> ${comentario}<br/>
+            <b>Carta:</b> ${carta}
+          `;
 
-              const dataHora = item['carimbo de data/hora'] || 'Sem data';
-              const nome = item['nome'] || 'Sem nome';
-              const comentario = item['comentário'] || item['comentario'] || 'Sem comentário';
-              const respostaCarta = item['Carta'] || 'Carta I - Milita';
+          const markerIcon = icons[carta] || icons['Carta I - Milita'];
+          addMarkerToMap(coords.lat, coords.lon, popupHtml, markerIcon);
 
-              const popupHtml = `
-                <b>Data:</b> ${dataHora}<br/>
-                <b>Nome:</b> ${nome}<br/>
-                <b>Morada:</b> ${moradaTexto}<br/>
-                <b>Comentário:</b> ${comentario}<br/>
-                <b>Carta:</b> ${respostaCarta}
-              `;
+          addToGeoJson(coords.lat, coords.lon, {
+            dataHora,
+            nome,
+            morada,
+            comentario,
+            carta,
+          });
 
-              const markerIcon = icons[respostaCarta] || icons['Carta I - Milita'];
-
-              L.marker([lat, lon], { icon: markerIcon })
-                .addTo(map)
-                .bindPopup(popupHtml);
-            } else {
-              console.warn("Morada não encontrada:", moradaTexto);
-            }
-          } catch (e) {
-            console.error('Erro ao geocodificar:', e);
-          }
-
-          await new Promise(resolve => setTimeout(resolve, 100)); // Delay entre requisições
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
-      }
 
-      geocodeAndPlot();
+        hideLoader();
+        downloadGeoJson();
+      })();
     }
+
+    showLoader();
 
     const script = document.createElement('script');
     script.src = apiUrl + '?callback=jsonpCallback';
@@ -110,6 +180,7 @@
   </script>
 </body>
 </html>
+
 
 
 
