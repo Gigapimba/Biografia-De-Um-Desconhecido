@@ -34,7 +34,7 @@
 
     // Ícones coloridos personalizados
     const icons = {
-      'História 1': L.icon({
+      'Carta I - Milita': L.icon({
         iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
         shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
         iconSize: [25, 41],
@@ -42,7 +42,7 @@
         popupAnchor: [1, -34],
         shadowSize: [41, 41]
       }),
-      'História 2': L.icon({
+      'Carta II - Nizette': L.icon({
         // Ícone rosa não oficial, mas usei este disponível público
         iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png',
         shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
@@ -69,7 +69,7 @@
       }),
     };
 
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbwP1nCFsnsvNiFjSb65GzzizYmtpVS0oBw7GDGY_y8Md6fZej1hGGJ8MdSRQKa2gRY7lw/exec';
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbwntmJ7z6vERmUqiy4STF-iEJxNo6ukquPPxpMjxL2PENzVFbzNgla5hcUoCKA-SVCz/exec';
 
     function jsonpCallback(dados) {
       if (!dados.length) {
@@ -94,7 +94,7 @@
               const nome = item['nome'] || 'Sem nome';
               const comentario = item['comentário'] || item['comentario'] || 'Sem comentário';
 
-              const historiaResposta = item['Historia'] || item['historia'] || 'História 1'; // Ajusta conforme nome exato
+              const historiaResposta = item['carta'] || item['Carta'] || 'Carta I - Milita'; // Ajusta conforme nome exato
 
               const popupHtml = `
                 <b>Data:</b> ${dataHora}<br/>
@@ -104,7 +104,7 @@
                 <b>História:</b> ${historiaResposta}
               `;
 
-              const markerIcon = icons[historiaResposta] || icons['História 1'];
+              const markerIcon = icons[historiaResposta] || icons['Carta I - Milita'];
 
               L.marker([lat, lon], { icon: markerIcon })
                 .addTo(map)
