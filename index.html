@@ -144,11 +144,13 @@
           const dataHora = item['carimbo de data/hora'] || 'Sem data';
           const nome = item['nome'] || 'Sem nome';
 
+          // Corrigido: Busca a chave de comentário
           const comentarioKey = Object.keys(item).find(key =>
             key.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes('coment')
           );
           const comentario = comentarioKey ? item[comentarioKey] : 'Sem comentário';
 
+          // Corrigido: Busca a chave de carta
           const cartaKey = Object.keys(item).find(key =>
             key.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes('carta')
           );
@@ -173,6 +175,7 @@
             carta,
           });
 
+          // Pequena pausa para evitar limite do Nominatim
           await new Promise(resolve => setTimeout(resolve, 100));
         }
 
