@@ -70,10 +70,7 @@
       return;
     }
 
-    const pathGroups = {
-      'Carta I - Milita': [],
-      'Carta II - Nizette': [],
-    };
+    const pathGroups = {}; // Agrupa coordenadas por carta
 
     (async () => {
       for (const item of dados) {
@@ -107,21 +104,40 @@
         const markerIcon = icons[carta] || icons['Carta I - Milita'];
         addMarkerToMap(coords.lat, coords.lon, popupHtml, markerIcon);
 
+        // Guardar coordenadas no grupo correto
         if (!pathGroups[carta]) pathGroups[carta] = [];
         pathGroups[carta].push([coords.lat, coords.lon]);
 
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
-      // Desenhar as linhas (polylines) por grupo
+      // Criar linhas por grupo
       for (const [carta, coordsArray] of Object.entries(pathGroups)) {
         if (coordsArray.length >= 2) {
-          L.polyline(coordsArray, {
+          const polyline = L.polyline(coordsArray, {
             color: lineColors[carta] || 'gray',
             weight: 3,
             opacity: 0.7,
             smoothFactor: 1
           }).addTo(map);
+
+          polyline.bindTooltip(`Ligação: ${carta}`, {
+            permanent: false,
+            direction: 'center',
+            className: 'carta-tooltip',
+          });
+
+          polyline.on('mouseover', function () {
+            this.setStyle({ weight: 6, opacity: 1 });
+          });
+
+          polyline.on('mouseout', function () {
+            this.setStyle({ weight: 3, opacity: 0.7 });
+          });
+
+          polyline.on('click', function () {
+            map.fitBounds(this.getBounds());
+          });
         }
       }
 
@@ -135,7 +151,5 @@
   script.src = apiUrl + '?callback=jsonpCallback';
   document.body.appendChild(script);
 </script>
-
-
 
 
