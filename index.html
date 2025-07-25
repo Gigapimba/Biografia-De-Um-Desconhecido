@@ -6,10 +6,10 @@
   <meta name="description" content="Mapa interativo da iniciativa 'Biografia De Um Desconhecido'" />
   <title>Biografia De Um Desconhecido - Mapa</title>
 
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <style>
     html, body {
       margin: 0;
@@ -35,14 +35,6 @@
       z-index: 9999;
       font-size: 1.5rem;
     }
-    .carta-tooltip {
-      font-weight: bold;
-      color: black;
-      background-color: white;
-      border-radius: 4px;
-      padding: 2px 6px;
-      border: 1px solid #ccc;
-    }
   </style>
 </head>
 <body>
@@ -50,165 +42,120 @@
   <div id="map"></div>
   <div id="loader">A carregar moradas no mapa...</div>
 
-  <!-- Primeiro o Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!-- Depois o teu script, que só roda depois do DOM estar pronto -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const map = L.map('map').setView([38.7169, -9.1399], 12);
+    const map = L.map('map').setView([38.7169, -9.1399], 12);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-      }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+    }).addTo(map);
 
-      const icons = {
-        'Carta I - Milita': L.icon({
-          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
-          shadowSize: [41, 41],
-        }),
-        'Carta II - Nizette': L.icon({
-          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png',
-          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
-          shadowSize: [41, 41],
-        }),
-      };
+    const icons = {
+      'Carta I - Milita': L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+      }),
+      'Carta II - Nizette': L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+      }),
+    };
 
-      const lineColors = {
-        'Carta I - Milita': 'blue',
-        'Carta II - Nizette': 'violet',
-      };
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbxBgPWvdXWv5oTYJj1IQumRgYtgG_eJpyxmWdfuJCI5hSanW7dtKjukNPGY_dkXfxL8/exec';
+    const cacheKey = "geocodeCache";
+    let geocodeCache = JSON.parse(localStorage.getItem(cacheKey) || '{}');
 
-      const apiUrl = 'https://script.google.com/macros/s/AKfycbxBgPWvdXWv5oTYJj1IQumRgYtgG_eJpyxmWdfuJCI5hSanW7dtKjukNPGY_dkXfxL8/exec';
-      const cacheKey = "geocodeCache";
-      let geocodeCache = JSON.parse(localStorage.getItem(cacheKey) || '{}');
+    async function geocodeAddress(address) {
+      if (geocodeCache[address]) return geocodeCache[address];
 
-      async function geocodeAddress(address) {
-        if (geocodeCache[address]) return geocodeCache[address];
-
-        try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
-          const data = await res.json();
-          if (data && data.length > 0) {
-            const result = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
-            geocodeCache[address] = result;
-            localStorage.setItem(cacheKey, JSON.stringify(geocodeCache));
-            return result;
-          }
-        } catch (e) {
-          console.error("Erro na geocodificação:", address, e);
+      try {
+        const res = await fetch(https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)});
+        const data = await res.json();
+        if (data && data.length > 0) {
+          const result = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+          geocodeCache[address] = result;
+          localStorage.setItem(cacheKey, JSON.stringify(geocodeCache));
+          return result;
         }
-        return null;
+      } catch (e) {
+        console.error("Erro na geocodificação:", address, e);
+      }
+      return null;
+    }
+
+    function addMarkerToMap(lat, lon, popupHtml, icon) {
+      L.marker([lat, lon], { icon }).addTo(map).bindPopup(popupHtml);
+    }
+
+    function hideLoader() {
+      document.getElementById('loader').style.display = 'none';
+    }
+
+    function showLoader() {
+      document.getElementById('loader').style.display = 'flex';
+    }
+
+    function jsonpCallback(dados) {
+      if (!dados || !dados.length) {
+        alert("Nenhuma morada encontrada.");
+        hideLoader();
+        return;
       }
 
-      function addMarkerToMap(lat, lon, popupHtml, icon) {
-        L.marker([lat, lon], { icon }).addTo(map).bindPopup(popupHtml);
-      }
+      (async () => {
+        for (const item of dados) {
+          const morada = item['morada']?.trim();
+          if (!morada) continue;
 
-      function hideLoader() {
-        document.getElementById('loader').style.display = 'none';
-      }
+          const coords = await geocodeAddress(morada);
+          if (!coords) continue;
 
-      function showLoader() {
-        document.getElementById('loader').style.display = 'flex';
-      }
+          const dataHora = item['carimbo de data/hora'] || 'Sem data';
+          const nome = item['nome'] || 'Sem nome';
 
-      function jsonpCallback(dados) {
-        if (!dados || !dados.length) {
-          alert("Nenhuma morada encontrada.");
-          hideLoader();
-          return;
+          const comentarioKey = Object.keys(item).find(key =>
+            key.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes('coment')
+          );
+          const comentario = item[comentarioKey] || 'Sem comentário';
+
+          const cartaKey = Object.keys(item).find(key =>
+            key.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes('carta')
+          );
+          const carta = item[cartaKey]?.trim() || 'Carta I - Milita';
+
+          const popupHtml = 
+            <b>Data:</b> ${dataHora}<br/>
+            <b>Nome:</b> ${nome}<br/>
+            <b>Morada:</b> ${morada}<br/>
+            <b>Comentário:</b> ${comentario}<br/>
+            <b>Carta:</b> ${carta}
+          ;
+
+          const markerIcon = icons[carta] || icons['Carta I - Milita'];
+          addMarkerToMap(coords.lat, coords.lon, popupHtml, markerIcon);
+
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
 
-        const pathGroups = {}; // Agrupa coordenadas por carta
+        hideLoader();
+      })();
+    }
 
-        (async () => {
-          for (const item of dados) {
-            const morada = item['morada']?.trim();
-            if (!morada) continue;
+    showLoader();
 
-            const coords = await geocodeAddress(morada);
-            if (!coords) continue;
-
-            const dataHora = item['carimbo de data/hora'] || 'Sem data';
-            const nome = item['nome'] || 'Sem nome';
-
-            const comentarioKey = Object.keys(item).find(key =>
-              key.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes('coment')
-            );
-            const comentario = item[comentarioKey] || 'Sem comentário';
-
-            const cartaKey = Object.keys(item).find(key =>
-              key.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes('carta')
-            );
-            const carta = item[cartaKey]?.trim() || 'Carta I - Milita';
-
-            const popupHtml = `
-              <b>Data:</b> ${dataHora}<br/>
-              <b>Nome:</b> ${nome}<br/>
-              <b>Morada:</b> ${morada}<br/>
-              <b>Comentário:</b> ${comentario}<br/>
-              <b>Carta:</b> ${carta}
-            `;
-
-            const markerIcon = icons[carta] || icons['Carta I - Milita'];
-            addMarkerToMap(coords.lat, coords.lon, popupHtml, markerIcon);
-
-            if (!pathGroups[carta]) pathGroups[carta] = [];
-            pathGroups[carta].push([coords.lat, coords.lon]);
-
-            await new Promise(resolve => setTimeout(resolve, 100));
-          }
-
-          // Criar linhas ligando os marcadores da mesma carta
-          for (const [carta, coordsArray] of Object.entries(pathGroups)) {
-            if (coordsArray.length >= 2) {
-              const polyline = L.polyline(coordsArray, {
-                color: lineColors[carta] || 'gray',
-                weight: 3,
-                opacity: 0.7,
-                smoothFactor: 1
-              }).addTo(map);
-
-              polyline.bindTooltip(`Ligação: ${carta}`, {
-                permanent: false,
-                direction: 'center',
-                className: 'carta-tooltip',
-              });
-
-              polyline.on('mouseover', function () {
-                this.setStyle({ weight: 6, opacity: 1 });
-              });
-
-              polyline.on('mouseout', function () {
-                this.setStyle({ weight: 3, opacity: 0.7 });
-              });
-
-              polyline.on('click', function () {
-                map.fitBounds(this.getBounds());
-              });
-            }
-          }
-
-          hideLoader();
-        })();
-      }
-
-      showLoader();
-
-      // Carregar os dados via JSONP
-      const script = document.createElement('script');
-      script.src = apiUrl + '?callback=jsonpCallback';
-      document.body.appendChild(script);
-    });
+    const script = document.createElement('script');
+    script.src = apiUrl + '?callback=jsonpCallback';
+    document.body.appendChild(script);
   </script>
 </body>
 </html>
+
+
 
