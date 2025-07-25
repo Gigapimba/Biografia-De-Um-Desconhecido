@@ -92,7 +92,7 @@
     }
 
     function addMarkerToMap(lat, lon, popupHtml, icon) {
-      const marker = L.marker([lat, lon], { icon }).addTo(map).bindPopup(popupHtml);
+      L.marker([lat, lon], { icon }).addTo(map).bindPopup(popupHtml);
     }
 
     function addToGeoJson(lat, lon, properties) {
@@ -116,7 +116,6 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      L.marker([lat, lon], { icon }).addTo(map).bindPopup(popupHtml);
     }
 
     function hideLoader() {
@@ -146,16 +145,14 @@
           const nome = item['nome'] || 'Sem nome';
 
           const comentarioKey = Object.keys(item).find(key =>
-          key.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes('coment')
             key.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes('coment')
           );
-          const comentario = item[comentarioKey] || 'Sem comentário';
+          const comentario = comentarioKey ? item[comentarioKey] : 'Sem comentário';
 
           const cartaKey = Object.keys(item).find(key =>
-          key.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes('carta')
             key.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes('carta')
           );
-          const carta = item[cartaKey]?.trim() || 'Carta I - Milita';
+          const carta = cartaKey ? item[cartaKey]?.trim() : 'Carta I - Milita';
 
           const popupHtml = `
             <b>Data:</b> ${dataHora}<br/>
@@ -192,8 +189,3 @@
   </script>
 </body>
 </html>
-
-</html>
-
-
-
