@@ -103,21 +103,6 @@
       });
     }
 
-    function downloadGeoJson() {
-      const geoJson = {
-        type: "FeatureCollection",
-        features: geoJsonFeatures,
-      };
-
-      const blob = new Blob([JSON.stringify(geoJson, null, 2)], { type: "application/json" });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'biografia_desconhecido.geojson';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
     function hideLoader() {
       document.getElementById('loader').style.display = 'none';
     }
@@ -144,13 +129,13 @@
           const dataHora = item['carimbo de data/hora'] || 'Sem data';
           const nome = item['nome'] || 'Sem nome';
 
-          // Corrigido: Busca a chave de comentário
+          // Busca a chave de comentário
           const comentarioKey = Object.keys(item).find(key =>
             key.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes('coment')
           );
           const comentario = comentarioKey ? item[comentarioKey] : 'Sem comentário';
 
-          // Corrigido: Busca a chave de carta
+          // Busca a chave de carta
           const cartaKey = Object.keys(item).find(key =>
             key.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes('carta')
           );
@@ -180,7 +165,7 @@
         }
 
         hideLoader();
-        downloadGeoJson();
+        // downloadGeoJson(); // Removida a chamada para download
       })();
     }
 
